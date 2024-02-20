@@ -10,129 +10,23 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
+
+#include "Renderer.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "IndexBuffer.h"
+#include "VertexArray.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "Vendor/imgui.h"
+#include "Vendor/imgui_impl_glfw.h"
+#include "Vendor/imgui_impl_opengl3.h"
 
 // #include "../LegacyOpenGL/DebugMethods.h"
 
-struct ShaderProgramSources
-{
-    std::string VertexSource;
-    std::string FragmentSource;
-};
-
-static ShaderProgramSources ParseShader(const std::string& filePath)
-{
-    std::ifstream stream(filePath);
-
-    enum class ShaderType
-    {
-        NONE = -1,
-        VERTEX = 0,
-        FRAGMENT,
-    };
-    
-    std::string line;
-    std::stringstream stringStream[2];
-    ShaderType type = ShaderType::NONE;
-    
-    while (std::getline(stream, line))
-    {
-        if (line.find("#shader") != std::string::npos)
-        {
-            if (line.find("vertex") != std::string::npos)
-            {
-                // set mode to vertex
-                type = ShaderType::VERTEX;
-            }
-            else if (line.find("fragment") != std::string::npos)
-            {
-                // set mode to fragment
-                type = ShaderType::FRAGMENT;
-            }
-
-            continue;
-        }
-
-        stringStream[static_cast<int>(type)] << line << " \n";
-    }
-
-    return { stringStream[0].str(), stringStream[1].str() };
-}
-
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-    unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-
-    // Shader Id
-    // Number of source codes
-    // Pointer to the C string source code
-    // The length of source code in case we are providing multip
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    
-    if (result == GL_FALSE)
-    {
-        int length;
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = static_cast<char*>(alloca(length * sizeof(char)));
-        glGetShaderInfoLog(id, length, &length, message);
-
-        std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader!\n";
-        std::cout << "Message: " << message << "\n";
-
-        glDeleteShader(id);
-        
-        return 0;
-    }
-    
-    return id;
-}
-
 // Takes source code of each shader and compile into shaders
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    unsigned int program = glCreateProgram();
-    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    // attach compiled shaders to program
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-
-    // link and validate the program
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    // clear used shaders from program
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
-
-void SetupVertexPositions()
-{
-    constexpr float positions[6] = {
-        -0.5f, -0.5f,
-        0.0f,  0.5f,
-        0.5f, -0.5f
-    };
-    
-    // define buffer (give data to OpenGL)
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
-    
-    // Setup Attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
-    
-    // Enable Attribute
-    glEnableVertexAttribArray(0);
-}
 
 int main(void)
 {
@@ -142,8 +36,13 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    const char* glsl_version = "#version 330";
+    
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "Hello World", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -153,44 +52,174 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    // number of screen updates to wait from the time glfwSwapBuffers was called before swapping the buffers and returning
+    glfwSwapInterval(5);
+
     // Init GLEW
     if (glewInit() != GLEW_OK)
     {
         std::cerr << "ERROR: Glew init is invalid!\n";
         return -1;
     }
-    
-    // Define POSITION
-    SetupVertexPositions();
 
-    const std::string shaderPath = "./Resources/Shaders/Basic.shader";
-    const ShaderProgramSources sources = ParseShader(shaderPath);
-
-    std::cout << "VERTEX:" << "\n";
-    std::cout << sources.VertexSource << "\n";
-    std::cout << "FRAGMENT:" << "\n";
-    std::cout << sources.FragmentSource << "\n";
-    
-    const unsigned int shader = CreateShader(sources.VertexSource, sources.FragmentSource);
-    glUseProgram(shader);
-    
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        // Define POSITION
+        constexpr float positions[] = {
+            -50.0f, -50.0f, 0.0f, 0.0f,// 0
+             50.0f, -50.0f, 1.0f, 0.0f,// 1
+             50.0f,  50.0f, 1.0f, 1.0f,// 2
+            -50.0f,  50.0f, 0.0f, 1.0f,// 3
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+            // -10.5f, -10.5f, 0.0f, 0.0f,
+            // 10.5f, -10.5f, 1.0f, 0.0f,
+            // 10.5f, 10.5f, 1.0f, 1.0f,
+            // -10.5f, 10.5f, 0.0f, 1.0f,
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+            // -0.5f, -0.5f, 0.0f, 0.0f,
+            // 0.5f, -0.5f, 1.0f, 0.0f,
+            // 0.5f, 0.5f, 1.0f, 1.0f,
+            // -0.5f, 0.5f, 0.0f, 1.0f,
+        };
+        
+        // define buffer (give data to OpenGL)
+        unsigned int indices[] = {
+            0, 1, 2,
+            2, 3, 0
+        };
 
-        /* Poll for and process events */
-        glfwPollEvents();
+        // Blending
+        GLCall(glEnable(GL_BLEND))
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
+        
+        // Setup Buffers
+        // VERTEX
+        VertexArray vertexArray;
+        const VertexBuffer vertexBuffer{ positions, 4 * 4 * sizeof(float) };
+        
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        layout.Push<float>(2);
+        vertexArray.AddBuffer(vertexBuffer, layout);
+
+        // INDEX
+        const IndexBuffer indexBuffer { indices, 6 };
+
+        // Projection Matrix (ASPECT RATIO)
+        // View Matrix (CAMERA TRANSFORM)
+        // 
+        glm::mat4x4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+        glm::mat4x4 view = glm::translate(glm::mat4x4(1.0f), glm::vec3(0, 0, 0));
+
+        // Shader
+        std::string shaderPath = "./Resources/Shaders/Basic.shader";
+        std::string texturePath = "./Resources/Textures/KokkuLogo.png";
+        const std::string textureName = "u_Texture";
+        const std::string projectionName = "u_MVP";
+        int slot = 0;
+        
+        Shader shader {std::move(shaderPath)};
+        Texture texture {std::move(texturePath)};
+        shader.Bind();
+        texture.Bind(slot);
+        
+        shader.SetUniform1i(textureName, slot);
+        
+        // unbind everything
+        vertexArray.Unbind();
+        indexBuffer.Unbind();
+        vertexBuffer.Unbind();
+        shader.Unbind();
+
+        Renderer renderer;
+        
+        // Setup ImGUI
+        ImGui::CreateContext();
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init(glsl_version);
+        ImGui::StyleColorsDark();
+        // ImGui::StyleColorsClassic();
+        
+        float red = 0.0f;
+        float increment = 0.05f;
+        bool isDarkMode = true;
+        
+        glm::vec3 translationA(200, 200, 0);
+        glm::vec3 translationB(400, 200, 0);
+        
+        /* Loop until the user closes the window */
+        while (!glfwWindowShouldClose(window))
+        {
+            /* Render here */
+            renderer.Clear();
+            
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            
+            {
+                glm::mat4x4 model = glm::translate(glm::mat4x4(1.0f), translationA);
+                glm::mat4x4 mvp = projection * view * model;
+                shader.Bind();
+                shader.SetUniformMatrix4f(projectionName, mvp);
+                
+                renderer.Draw(vertexArray, indexBuffer, shader);
+            }
+            
+            {
+                glm::mat4x4 model = glm::translate(glm::mat4x4(1.0f), translationB);
+                glm::mat4x4 mvp = projection * view * model;
+                shader.Bind();
+                shader.SetUniformMatrix4f(projectionName, mvp);
+                
+                renderer.Draw(vertexArray, indexBuffer, shader);
+            }
+
+            if (red > 1.0f)
+            {
+                increment = - 0.05f;
+            }
+            else if (red < 0.0f)
+            {
+                increment = 0.05f;
+            }
+
+            red += increment;
+
+            {
+
+                ImGui::Begin("Objects translations");
+                ImGui::Checkbox("Dark Mode", &isDarkMode);
+                
+                ImGui::SliderFloat3("Translation A", &translationA.x, 0.0f, 960.0f);
+                ImGui::SliderFloat3("Translation B", &translationB.x, 0.0f, 960.0f);
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::End();
+            }
+
+            if (isDarkMode)
+            {
+                ImGui::StyleColorsDark();
+            }
+            else
+            {
+                ImGui::StyleColorsLight();
+            }
+            
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window);
+            
+            /* Poll for and process events */
+            glfwPollEvents();
+        }
     }
 
-    glDeleteProgram(shader);
-
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    
     glfwTerminate();
     return 0;
 }

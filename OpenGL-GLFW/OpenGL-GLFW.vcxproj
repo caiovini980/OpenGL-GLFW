@@ -141,12 +141,122 @@
   <ItemGroup>
     <ClCompile Include="LegacyOpenGL\DebugMethods.cpp" />
     <ClCompile Include="scr\Application.cpp" />
+    <ClCompile Include="scr\IndexBuffer.cpp">
+      <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <Optimization>Disabled</Optimization>
+      <SupportJustMyCode>true</SupportJustMyCode>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <AssemblerListingLocation>Debug\</AssemblerListingLocation>
+      <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
+      <BrowseInformation>false</BrowseInformation>
+      <BrowseInformationFile>Debug\</BrowseInformationFile>
+      <CompileAs>Default</CompileAs>
+      <ConformanceMode>true</ConformanceMode>
+      <DiagnosticsFormat>Column</DiagnosticsFormat>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <ErrorReporting>Prompt</ErrorReporting>
+      <ExpandAttributedSource>false</ExpandAttributedSource>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <EnableASAN>false</EnableASAN>
+      <EnableFuzzer>false</EnableFuzzer>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <GenerateModuleDependencies>false</GenerateModuleDependencies>
+      <GenerateSourceDependencies>false</GenerateSourceDependencies>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
+      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ModuleDependenciesFile>Debug\</ModuleDependenciesFile>
+      <ModuleOutputFile>Debug\</ModuleOutputFile>
+      <OmitDefaultLibName>false</OmitDefaultLibName>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ObjectFileName>Debug\</ObjectFileName>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ProgramDataBaseFileName>Debug\vc143.pdb</ProgramDataBaseFileName>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>Debug\OpenGL-GLFW.pch</PrecompiledHeaderOutputFile>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ShowIncludes>false</ShowIncludes>
+      <SourceDependenciesFile>Debug\</SourceDependenciesFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <SpectreMitigation>false</SpectreMitigation>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <TrackerLogDirectory>Debug\OpenGL-GLFW.tlog\</TrackerLogDirectory>
+      <TranslateIncludes>false</TranslateIncludes>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <UseFullPaths>true</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <XMLDocumentationFileName>Debug\</XMLDocumentationFileName>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <IntelJCCErratum>false</IntelJCCErratum>
+      <BuildStlModules>false</BuildStlModules>
+      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
+      <ExternalWarningLevel>InheritWarningLevel</ExternalWarningLevel>
+      <TreatExternalTemplatesAsInternal>true</TreatExternalTemplatesAsInternal>
+      <DisableAnalyzeExternal>false</DisableAnalyzeExternal>
+      <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_CONSOLE;_UNICODE;UNICODE;</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
+      <OmitFramePointers>false</OmitFramePointers>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>D:\MyRepository\C++\OpenGL\OpenGL-GLFW\Dependencies\include;C:\dev\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
+      <LinkCompiled>true</LinkCompiled>
+    </ClCompile>
+    <ClCompile Include="scr\Renderer.cpp" />
+    <ClCompile Include="scr\Shader.cpp" />
+    <ClCompile Include="scr\Texture.cpp" />
+    <ClCompile Include="scr\Vendor\imgui.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_demo.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_draw.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_impl_glfw.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_tables.cpp" />
+    <ClCompile Include="scr\Vendor\imgui_widgets.cpp" />
+    <ClCompile Include="scr\Vendor\stb_image.cpp" />
+    <ClCompile Include="scr\VertexArray.cpp" />
+    <ClCompile Include="scr\VertexBuffer.cpp" />
+    <ClCompile Include="scr\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LegacyOpenGL\DebugMethods.h" />
+    <ClInclude Include="scr\IndexBuffer.h" />
+    <ClInclude Include="scr\Renderer.h" />
+    <ClInclude Include="scr\Shader.h" />
+    <ClInclude Include="scr\Texture.h" />
+    <ClInclude Include="scr\Vendor\imconfig.h" />
+    <ClInclude Include="scr\Vendor\imgui.h" />
+    <ClInclude Include="scr\Vendor\imgui_impl_glfw.h" />
+    <ClInclude Include="scr\Vendor\imgui_impl_opengl3.h" />
+    <ClInclude Include="scr\Vendor\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="scr\Vendor\imgui_internal.h" />
+    <ClInclude Include="scr\Vendor\imstb_rectpack.h" />
+    <ClInclude Include="scr\Vendor\imstb_textedit.h" />
+    <ClInclude Include="scr\Vendor\imstb_truetype.h" />
+    <ClInclude Include="scr\VertexArray.h" />
+    <ClInclude Include="scr\VertexBuffer.h" />
+    <ClInclude Include="scr\VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Shaders\Basic.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Textures\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
